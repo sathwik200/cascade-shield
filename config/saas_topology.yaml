@@ -1,0 +1,113 @@
+name: SaaS Platform
+description: Multi-tenant SaaS platform with billing, analytics, and tenant management
+services:
+- id: api_gateway
+  name: API Gateway
+  criticality: CRITICAL
+- id: app_service
+  name: Application Service
+  criticality: CRITICAL
+  backup: app_service_backup
+- id: database_service
+  name: Database Service
+  criticality: CRITICAL
+- id: tenant_management
+  name: Tenant Management
+  criticality: HIGH
+- id: authentication_service
+  name: Authentication Service
+  criticality: CRITICAL
+- id: billing_service
+  name: Billing Service
+  criticality: HIGH
+- id: analytics_service
+  name: Analytics Service
+  criticality: MEDIUM
+- id: notification_service
+  name: Notification Service
+  criticality: LOW
+- id: audit_service
+  name: Audit Service
+  criticality: MEDIUM
+- id: app_service_backup
+  name: App Backup
+  criticality: HIGH
+dependencies:
+- source: api_gateway
+  target: app_service
+  critical: true
+- source: api_gateway
+  target: authentication_service
+  critical: true
+- source: app_service
+  target: database_service
+  critical: true
+- source: app_service
+  target: tenant_management
+  critical: true
+- source: app_service
+  target: notification_service
+  critical: false
+- source: app_service
+  target: analytics_service
+  critical: false
+- source: tenant_management
+  target: database_service
+  critical: true
+- source: authentication_service
+  target: database_service
+  critical: true
+- source: billing_service
+  target: database_service
+  critical: true
+- source: billing_service
+  target: tenant_management
+  critical: true
+- source: billing_service
+  target: notification_service
+  critical: false
+- source: analytics_service
+  target: database_service
+  critical: true
+- source: audit_service
+  target: database_service
+  critical: true
+- source: audit_service
+  target: app_service
+  critical: false
+- source: app_service_backup
+  target: database_service
+  critical: true
+scenarios:
+- name: Database Outage
+  description: Core database failure affecting all services
+  failures:
+  - service: database_service
+    type: UNAVAILABLE
+    duration: 15
+    severity: 1.0
+- name: App Service Crash
+  description: Primary application service becomes unavailable
+  failures:
+  - service: app_service
+    type: UNAVAILABLE
+    duration: 12
+    severity: 1.0
+- name: Auth Timeout
+  description: Authentication service experiencing timeouts
+  failures:
+  - service: authentication_service
+    type: TIMEOUT
+    duration: 10
+    severity: 0.8
+- name: Billing and Tenant Stress
+  description: Simultaneous billing and tenant management issues
+  failures:
+  - service: billing_service
+    type: HIGH_ERROR_RATE
+    duration: 10
+    severity: 0.7
+  - service: tenant_management
+    type: HIGH_LATENCY
+    duration: 8
+    severity: 0.6

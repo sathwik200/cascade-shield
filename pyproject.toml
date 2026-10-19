@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cascade-shield"
+version = "1.0.0"
+description = "An Intelligent Framework for Cascading Failure Containment and Recovery in Microservice Systems"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "Cascade Shield Team"}
+]
+
+dependencies = [
+    "streamlit>=1.28.0",
+    "networkx>=3.1",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "plotly>=5.15.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+]
+
+[tool.setuptools.packages.find]
+include = ["cascade_shield*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.coverage.run]
+source = ["cascade_shield"]
+omit = ["tests/*", "dashboard/*", "scripts/*"]
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 60

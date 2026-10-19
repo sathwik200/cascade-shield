@@ -1,0 +1,101 @@
+name: Video Streaming Platform
+description: Media streaming service with transcoding, catalog, and recommendations
+services:
+- id: api_gateway
+  name: API Gateway
+  criticality: CRITICAL
+- id: streaming_service
+  name: Streaming Service
+  criticality: CRITICAL
+  backup: streaming_backup
+- id: transcoding_service
+  name: Transcoding Service
+  criticality: HIGH
+- id: video_catalog
+  name: Video Catalog
+  criticality: HIGH
+- id: recommendation_service
+  name: Recommendation Service
+  criticality: MEDIUM
+- id: content_storage
+  name: Content Storage
+  criticality: CRITICAL
+- id: user_service
+  name: User Service
+  criticality: HIGH
+- id: analytics_service
+  name: Analytics Service
+  criticality: LOW
+- id: streaming_backup
+  name: Streaming Backup
+  criticality: HIGH
+dependencies:
+- source: api_gateway
+  target: streaming_service
+  critical: true
+- source: api_gateway
+  target: video_catalog
+  critical: true
+- source: api_gateway
+  target: user_service
+  critical: true
+- source: streaming_service
+  target: content_storage
+  critical: true
+- source: streaming_service
+  target: transcoding_service
+  critical: true
+- source: streaming_service
+  target: analytics_service
+  critical: false
+- source: video_catalog
+  target: content_storage
+  critical: true
+- source: video_catalog
+  target: recommendation_service
+  critical: false
+- source: transcoding_service
+  target: content_storage
+  critical: true
+- source: recommendation_service
+  target: user_service
+  critical: false
+- source: analytics_service
+  target: user_service
+  critical: false
+- source: streaming_backup
+  target: content_storage
+  critical: true
+scenarios:
+- name: Content Storage Failure
+  description: Primary content storage becomes unavailable
+  failures:
+  - service: content_storage
+    type: UNAVAILABLE
+    duration: 15
+    severity: 1.0
+- name: Streaming Service Crash
+  description: Main streaming service crashes under load
+  failures:
+  - service: streaming_service
+    type: UNAVAILABLE
+    duration: 12
+    severity: 1.0
+- name: Transcoding Bottleneck
+  description: Transcoding service experiencing high latency
+  failures:
+  - service: transcoding_service
+    type: HIGH_LATENCY
+    duration: 10
+    severity: 0.8
+- name: Multi-Service Stress
+  description: Catalog errors combined with recommendation timeouts
+  failures:
+  - service: video_catalog
+    type: HIGH_ERROR_RATE
+    duration: 10
+    severity: 0.7
+  - service: recommendation_service
+    type: TIMEOUT
+    duration: 8
+    severity: 0.6

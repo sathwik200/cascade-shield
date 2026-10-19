@@ -1,0 +1,110 @@
+name: Banking System
+description: Financial services platform with transactions, ledger, and fraud detection
+services:
+- id: api_gateway
+  name: API Gateway
+  criticality: CRITICAL
+- id: auth_service
+  name: Auth Service
+  criticality: CRITICAL
+  backup: auth_service_backup
+- id: transaction_service
+  name: Transaction Service
+  criticality: CRITICAL
+- id: ledger_service
+  name: Ledger Service
+  criticality: CRITICAL
+- id: account_service
+  name: Account Service
+  criticality: HIGH
+- id: fraud_detection
+  name: Fraud Detection
+  criticality: HIGH
+- id: audit_service
+  name: Audit Service
+  criticality: MEDIUM
+- id: notification_service
+  name: Notification Service
+  criticality: LOW
+- id: database_service
+  name: Database Service
+  criticality: CRITICAL
+- id: auth_service_backup
+  name: Auth Backup
+  criticality: HIGH
+dependencies:
+- source: api_gateway
+  target: auth_service
+  critical: true
+- source: api_gateway
+  target: transaction_service
+  critical: true
+- source: api_gateway
+  target: account_service
+  critical: true
+- source: transaction_service
+  target: ledger_service
+  critical: true
+- source: transaction_service
+  target: fraud_detection
+  critical: true
+- source: transaction_service
+  target: database_service
+  critical: true
+- source: transaction_service
+  target: notification_service
+  critical: false
+- source: ledger_service
+  target: database_service
+  critical: true
+- source: account_service
+  target: database_service
+  critical: true
+- source: fraud_detection
+  target: database_service
+  critical: true
+- source: audit_service
+  target: database_service
+  critical: true
+- source: audit_service
+  target: transaction_service
+  critical: false
+- source: auth_service
+  target: database_service
+  critical: true
+- source: auth_service_backup
+  target: database_service
+  critical: true
+scenarios:
+- name: Database Outage
+  description: Core database failure in banking system
+  failures:
+  - service: database_service
+    type: UNAVAILABLE
+    duration: 15
+    severity: 1.0
+- name: Auth Service Failure
+  description: Authentication service becomes unavailable
+  failures:
+  - service: auth_service
+    type: UNAVAILABLE
+    duration: 10
+    severity: 1.0
+- name: Transaction Timeout Storm
+  description: Transaction service experiencing cascading timeouts
+  failures:
+  - service: transaction_service
+    type: TIMEOUT
+    duration: 12
+    severity: 0.9
+- name: Fraud Detection Overload
+  description: Fraud detection and ledger under simultaneous stress
+  failures:
+  - service: fraud_detection
+    type: HIGH_LATENCY
+    duration: 10
+    severity: 0.8
+  - service: ledger_service
+    type: HIGH_ERROR_RATE
+    duration: 8
+    severity: 0.7

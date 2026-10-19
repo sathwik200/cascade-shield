@@ -1,0 +1,117 @@
+name: E-Commerce Platform
+description: Online retail platform with order processing, payments, and inventory
+services:
+- id: api_gateway
+  name: API Gateway
+  criticality: CRITICAL
+- id: order_service
+  name: Order Service
+  criticality: CRITICAL
+  backup: order_service_backup
+- id: payment_service
+  name: Payment Service
+  criticality: CRITICAL
+- id: inventory_service
+  name: Inventory Service
+  criticality: HIGH
+- id: product_catalog
+  name: Product Catalog
+  criticality: HIGH
+  backup: product_cache
+- id: product_cache
+  name: Product Cache
+  criticality: MEDIUM
+- id: notification_service
+  name: Notification Service
+  criticality: LOW
+- id: user_service
+  name: User Service
+  criticality: HIGH
+- id: shipping_service
+  name: Shipping Service
+  criticality: MEDIUM
+- id: database_service
+  name: Database Service
+  criticality: CRITICAL
+- id: order_service_backup
+  name: Order Backup
+  criticality: HIGH
+dependencies:
+- source: api_gateway
+  target: order_service
+  critical: true
+- source: api_gateway
+  target: product_catalog
+  critical: true
+- source: api_gateway
+  target: user_service
+  critical: true
+- source: order_service
+  target: payment_service
+  critical: true
+- source: order_service
+  target: inventory_service
+  critical: true
+- source: order_service
+  target: notification_service
+  critical: false
+- source: order_service
+  target: database_service
+  critical: true
+- source: payment_service
+  target: database_service
+  critical: true
+- source: inventory_service
+  target: database_service
+  critical: true
+- source: product_catalog
+  target: database_service
+  critical: true
+- source: product_catalog
+  target: product_cache
+  critical: false
+- source: shipping_service
+  target: order_service
+  critical: true
+- source: shipping_service
+  target: notification_service
+  critical: false
+- source: notification_service
+  target: user_service
+  critical: false
+- source: order_service_backup
+  target: database_service
+  critical: true
+scenarios:
+- name: Database Outage
+  description: Complete database failure affecting all data-dependent services
+  failures:
+  - service: database_service
+    type: UNAVAILABLE
+    duration: 15
+    severity: 1.0
+- name: Payment Gateway Timeout
+  description: Payment service experiencing timeouts during peak traffic
+  failures:
+  - service: payment_service
+    type: TIMEOUT
+    duration: 10
+    severity: 0.8
+- name: Cascading Order Failure
+  description: Order service fails, cascading to dependent services
+  failures:
+  - service: order_service
+    type: UNAVAILABLE
+    duration: 12
+    severity: 1.0
+- name: Multi-Service Degradation
+  description: Simultaneous issues across inventory and product catalog
+  failures:
+  - service: inventory_service
+    type: HIGH_LATENCY
+    duration: 10
+    severity: 0.7
+  - service: product_catalog
+    type: HIGH_ERROR_RATE
+    duration: 8
+    severity: 0.6
