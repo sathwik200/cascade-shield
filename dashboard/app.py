@@ -46,9 +46,12 @@ from cascade_shield.recovery.manager import RecoveryManager
 from cascade_shield.metrics.collector import MetricsCollector
 from cascade_shield.experiment.runner import ExperimentRunner, POLICY_LABELS
 
-from dashboard.components.styles import get_custom_css
-from dashboard.components.topology_view import create_topology_figure
-from dashboard.components.metrics_view import (
+# pyrefly: ignore[missing-import]
+from components.styles import get_custom_css
+# pyrefly: ignore[missing-import]
+from components.topology_view import create_topology_figure
+# pyrefly: ignore[missing-import]
+from components.metrics_view import (
     create_availability_chart,
     create_health_distribution_chart,
     create_policy_comparison_chart,
